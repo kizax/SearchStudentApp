@@ -2,32 +2,31 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="20dp"
-    android:paddingBottom="20dp"
-    android:gravity="center" >
+    android:gravity="center"
+    android:paddingBottom="12dp"
+    android:paddingTop="12dp" >
 
     <TextView
         android:id="@+id/studentNameText"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_margin="8dp"
         android:gravity="center_vertical"
         android:text="陳木柱"
         android:textColor="#0070a8"
-        android:textSize="28sp" >
+        android:textSize="22sp" >
     </TextView>
 
     <TextView
         android:layout_width="1dp"
         android:layout_height="fill_parent"
-        android:layout_margin="8dp"
-        android:background="@drawable/student_data_background_style">
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/student_data_background_style" >
     </TextView>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -39,11 +38,11 @@
                 android:id="@+id/gradeNum"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="1"
                 android:textColor="#e52b50"
-                android:textSize="20sp" >
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
@@ -51,19 +50,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="年"
-                android:textSize="15sp" >
+                android:textSize="8sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/classNum"
-                android:layout_width="70px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="10"
                 android:textColor="#e52b50"
-                android:textSize="20sp" >
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
@@ -71,19 +70,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="班"
-                android:textSize="15sp" >
+                android:textSize="8sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/num"
-                android:layout_width="70px"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:text="11"
                 android:textColor="#e52b50"
-                android:textSize="20sp" >
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
@@ -91,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="號"
-                android:textSize="15sp" >
+                android:textSize="8sp" >
             </TextView>
         </LinearLayout>
 
@@ -99,10 +98,10 @@
             android:id="@+id/studentIdText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
+            android:gravity="center_horizontal"
             android:text="210101"
             android:textColor="#008047"
-            android:textSize="20sp" >
+            android:textSize="18sp" >
         </TextView>
     </LinearLayout>
 

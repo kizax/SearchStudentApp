@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import edu.tcfsh.searchstudentapp.R;
+import com.example.effectivenavigation.R;
 
 public class MySimpleArrayAdapter extends ArrayAdapter<StudentRecord> {
 	private final Context context;
@@ -55,14 +55,21 @@ public class MySimpleArrayAdapter extends ArrayAdapter<StudentRecord> {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
+		
 		holder.gradeText.setText(String.valueOf(studentRecordList.get(position)
 				.getGradeNum()));
-		holder.classText.setText(String.valueOf(studentRecordList.get(position)
-				.getClassNum()));
-		holder.numText.setText(String.valueOf(studentRecordList.get(position)
-				.getNum()));
+		
+		String classText = String.format("%1$02d", studentRecordList.get(position)
+				.getClassNum());
+		holder.classText.setText(classText);
+		
+		String numText = String.format("%1$02d", studentRecordList.get(position)
+				.getNum());
+		holder.numText.setText(numText);
+		
 		holder.studentIdText.setText(String.valueOf(studentRecordList.get(
 				position).getStudentId()));
+		
 		holder.studentNameText.setText(String.valueOf(studentRecordList.get(
 				position).getStudentName()));
 

@@ -1,8 +1,26 @@
+/*
+ * Copyright 2012 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package edu.tcfsh.searchstudentapp;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.example.effectivenavigation.R;
 
 import jxl.Cell;
 import jxl.CellType;
@@ -11,238 +29,244 @@ import jxl.NumberCell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-import edu.tcfsh.searchstudentapp.R;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Configuration;
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.Editable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends Activity {
-	private ArrayList<StudentRecord> studentRecordList;
+public class MainActivity extends FragmentActivity implements
+		ActionBar.TabListener {
 
-	private TextView statusText;
-	private EditText regexEditText;
-	private ListView myList;
-	private Button commitButton;
+	/**
+	 * The {@link android.support.v4.view.PagerAdapter} that will provide
+	 * fragments for each of the three primary sections of the app. We use a
+	 * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which
+	 * will keep every loaded fragment in memory. If this becomes too memory
+	 * intensive, it may be best to switch to a
+	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+	 */
+	AppSectionsPagerAdapter mAppSectionsPagerAdapter;
 
-	@Override
+	/**
+	 * The {@link ViewPager} that will display the three primary sections of the
+	 * app, one at a time.
+	 */
+	ViewPager mViewPager;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		initialize();
-		initializeFileWriter();
-		setListener();
+
+		// Create the adapter that will return a fragment for each of the three
+		// primary sections
+		// of the app.
+		mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(
+				getSupportFragmentManager());
+
+		// Set up the action bar.
+		final ActionBar actionBar = getActionBar();
+
+		// Specify that the Home/Up button should not be enabled, since there is
+		// no hierarchical
+		// parent.
+		actionBar.setHomeButtonEnabled(false);
+
+		// Specify that we will be displaying tabs in the action bar.
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+		// Set up the ViewPager, attaching the adapter and setting up a listener
+		// for when the
+		// user swipes between sections.
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mViewPager.setAdapter(mAppSectionsPagerAdapter);
+		mViewPager
+				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+					@Override
+					public void onPageSelected(int position) {
+						// When swiping between different app sections, select
+						// the corresponding tab.
+						// We can also use ActionBar.Tab#select() to do this if
+						// we have a reference to the
+						// Tab.
+						actionBar.setSelectedNavigationItem(position);
+					}
+				});
+
+		// For each of the sections in the app, add a tab to the action bar.
+		for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
+			// Create a tab with text corresponding to the page title defined by
+			// the adapter.
+			// Also specify this Activity object, which implements the
+			// TabListener interface, as the
+			// listener for when this tab is selected.
+			actionBar.addTab(actionBar.newTab()
+					.setText(mAppSectionsPagerAdapter.getPageTitle(i))
+					.setTabListener(this));
+		}
 	}
 
-	View.OnClickListener commitButtonListener = new View.OnClickListener() {
+	@Override
+	public void onTabUnselected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+	}
+
+	@Override
+	public void onTabSelected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+		// When the given tab is selected, switch to the corresponding page in
+		// the ViewPager.
+		mViewPager.setCurrentItem(tab.getPosition());
+	}
+
+	@Override
+	public void onTabReselected(ActionBar.Tab tab,
+			FragmentTransaction fragmentTransaction) {
+	}
+
+	/**
+	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+	 * one of the primary sections of the app.
+	 */
+	public static class AppSectionsPagerAdapter extends FragmentPagerAdapter {
+
+		public AppSectionsPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+
 		@Override
-		public void onClick(View v) {
+		public Fragment getItem(int i) {
+			switch (i) {
+			case 0:
+				// The first section of the app is the most interesting -- it
+				// offers
+				// a launchpad into the other demonstrations in this example
+				// application.
+				return new SearchStudentByIdFragment();
 
-			String expression = regexEditText.getText().toString();
-			statusText.setText("您的查詢：" + expression);
-			regexEditText.setText("");
+			case 1:
+				// The first section of the app is the most interesting -- it
+				// offers
+				// a launchpad into the other demonstrations in this example
+				// application.
+				return new SearchStudentByNameFragment();
 
-			ArrayList<StudentRecord> searchResultList = new ArrayList<StudentRecord>();
-			switch (expression.length()) {
-			case 2:
-			case 3:
-			case 4:
-				for (StudentRecord rec : studentRecordList) {
-					if (rec.matchStudentName(expression)) {
-						searchResultList.add(rec);
-					}
-				}
-				break;
-			case 5:
-				for (StudentRecord rec : studentRecordList) {
-					if (rec.matchStudentNum(expression)) {
-						searchResultList.add(rec);
-					}
-				}
-				break;
-			case 6:
-				for (StudentRecord rec : studentRecordList) {
-					if (rec.matchStudentID(expression)) {
-						searchResultList.add(rec);
-					}
-				}
-				break;
+			default:
+				// The other sections of the app are dummy placeholders.
+				Fragment fragment = new DummySectionFragment();
+				Bundle args = new Bundle();
+				args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, i + 1);
+				fragment.setArguments(args);
+				return fragment;
+			}
+		}
+
+		@Override
+		public int getCount() {
+			return 2;
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+
+			switch (position) {
+			case 0:
+				return "學號/班號查詢";
+
+			case 1:
+				// The first section of the app is the most interesting -- it
+				// offers
+				// a launchpad into the other demonstrations in this example
+				// application.
+				return "姓名查詢";
+
+			default:
+				// The other sections of the app are dummy placeholders.
+				return "dummy";
 			}
 
-			MySimpleArrayAdapter adapter = new MySimpleArrayAdapter(
-					myList.getContext(), searchResultList);
-
-			myList.setAdapter(adapter);
-
 		}
-	};
-
-	private void setListener() {
-		commitButton.setOnClickListener(commitButtonListener);
 	}
 
-	private void initialize() {
-		regexEditText = (EditText) findViewById(R.id.regexEditText);
-		statusText = (TextView) findViewById(R.id.statusText);
-		myList = (ListView) findViewById(R.id.list);
-		commitButton = (Button) findViewById(R.id.commitButton);
-		studentRecordList = new ArrayList<StudentRecord>();
-	}
+	/**
+	 * A fragment that launches other parts of the demo application.
+	 */
+	public static class LaunchpadSectionFragment extends Fragment {
 
-	private String getStudentFileFileName() {
-		String studentDataFileName = "studentData.xls";
-		return studentDataFileName;
-	}
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(
+					R.layout.fragment_section_launchpad, container, false);
 
-	private void initializeFileWriter() {
+			// Demonstration of a collection-browsing activity.
+			rootView.findViewById(R.id.demo_collection_button)
+					.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							Intent intent = new Intent(getActivity(),
+									CollectionDemoActivity.class);
+							startActivity(intent);
+						}
+					});
 
-		// 指定xls存檔檔名
-		String studentDataFileName = getStudentFileFileName();
+			// Demonstration of navigating to external activities.
+			rootView.findViewById(R.id.demo_external_activity)
+					.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View view) {
+							// Create an intent that asks the user to pick a
+							// photo, but using
+							// FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET, ensures that
+							// relaunching
+							// the application from the device home screen does
+							// not return
+							// to the external activity.
+							Intent externalActivityIntent = new Intent(
+									Intent.ACTION_PICK);
+							externalActivityIntent.setType("image/*");
+							externalActivityIntent
+									.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+							startActivity(externalActivityIntent);
+						}
+					});
 
-		File SDCardpath = Environment.getExternalStorageDirectory();
-		File studentData = new File(SDCardpath.getAbsolutePath() + "/student/"
-				+ studentDataFileName);
-		// File copyOfAttendanceRecord = new File(SDCardpath.getAbsolutePath()
-		// + "/attendance Record/" + attendanceRecordFileName + "_copy");
-
-		Log.d("kizax", SDCardpath.getAbsolutePath() + "/student/"
-				+ studentDataFileName);
-
-		// 讀取學生名條
-		try {
-			if (studentData.exists()) {
-				Workbook workbook = Workbook.getWorkbook(studentData);
-				Sheet sheet = workbook.getSheet(0);
-
-				int index = 1;
-
-				while (index < sheet.getRows()) {
-
-					int gradeNum = 0;
-					int classNum = 0;
-					int studentId = 0;
-					String studentName = "";
-					int num = 0;
-
-					Cell studentIdCell = sheet.getCell(0, index);
-					if (studentIdCell.getType() == CellType.NUMBER) {
-						NumberCell nc = (NumberCell) studentIdCell;
-						studentId = (int) nc.getValue();
-
-					}
-
-					Cell gradeAndClassCell = sheet.getCell(1, index);
-					if (gradeAndClassCell.getType() == CellType.NUMBER) {
-						NumberCell nc = (NumberCell) gradeAndClassCell;
-						int gradeAndClass = (int) nc.getValue();
-						gradeNum = gradeAndClass / 100;
-						classNum = gradeAndClass % 100;
-					}
-
-					Cell numCell = sheet.getCell(2, index);
-					if (numCell.getType() == CellType.NUMBER) {
-						NumberCell nc = (NumberCell) numCell;
-						num = (int) nc.getValue();
-					}
-
-					Cell studentNameCell = sheet.getCell(3, index);
-					if (studentNameCell.getType() == CellType.LABEL) {
-						LabelCell lc = (LabelCell) studentNameCell;
-						studentName = lc.getString();
-					}
-
-					StudentRecord studentRecord = new StudentRecord(gradeNum,
-							classNum, num, studentId, studentName);
-					studentRecordList.add(studentRecord);
-
-					index++;
-				}
-
-			} else {
-				statusText.setText("學生名條檔案不存在");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (BiffException e) {
-			e.printStackTrace();
+			return rootView;
 		}
-
 	}
 
-	private void showToast(String msg) {
+	/**
+	 * A dummy fragment representing a section of the app, but that simply
+	 * displays dummy text.
+	 */
+	public static class DummySectionFragment extends Fragment {
 
-		Context context = getApplicationContext();
-		CharSequence text = msg;
-		int duration = Toast.LENGTH_SHORT;
+		public static final String ARG_SECTION_NUMBER = "section_number";
 
-		Toast toast = Toast.makeText(context, text, duration);
-		toast.show();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-	}
-
-	@Override
-	public void onBackPressed() {
-		new AlertDialog.Builder(this).setTitle("提示").setMessage("確定離開?")
-				.setPositiveButton("確定", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface arg0, int arg1) {
-						finish();
-					}
-				})
-				.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface arg0, int arg1) {
-					}
-				}).show();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View rootView = inflater.inflate(R.layout.fragment_section_dummy,
+					container, false);
+			Bundle args = getArguments();
+			((TextView) rootView.findViewById(android.R.id.text1))
+					.setText(getString(R.string.dummy_section_text,
+							args.getInt(ARG_SECTION_NUMBER)));
+			return rootView;
 		}
-		return super.onOptionsItemSelected(item);
 	}
+
 }
